@@ -8,13 +8,11 @@
 using namespace std;
 int main()
 {
-    List<int>* test = new List<int>();
-    test->push_back(1);
-    cout << !(test) << endl;
-    
-    List<int>* a;
-   // a = test;
+    List<int>* a = new List<int>();
+    a->push_back(1);
+    a->push_back(2);
+    a->push_back(3);
+    a->push_back(5);
+    a->list_out();
 
-   // a->list_out();
-   
 }

@@ -9,25 +9,31 @@ template <typename T> class List {
 		Node* next;
 	};
 
-	Node<T>* curent, * head, *tile;
+	Node<T>* current, * head, *tile;
+	void push_after(Node<T> *target, T data) {
+		Node<T>* temp = new Node<T>;
+		temp->next = target->next;
+		temp->value = data;
+		target->next = temp;
+	}
 public:
 	List() {
-		head = curent = NULL;
+		head = current = tile =  NULL;
 
 	};
 
 	~List() {
+		delete_all_node();
 	};
-	T get_value() {
-		return curent->value;
-	}
+
+	// -	добавление элемента после последнего
 	void push_back(T data) {
 			Node<T>* temp = new Node<T>;
 			temp->value = data;
 			temp->next = temp;
 		if (head == NULL)
 		{
-			head = curent = tile = temp;
+			head = current = tile = temp;
 		}
 		else {
 			tile->next = temp;
@@ -35,40 +41,61 @@ public:
 			tile = temp;
 		}
 	}
+	//==========================================
+	//	-	добавление элемента перед первым;  
 	void push_begin(T data) {
 		Node<T>* temp = new Node<T>;
 		temp->value = data;
 		if (head == NULL)
 		{
-			head = curent = tile = temp;
+			head = current = tile = temp;
 		}
 		else
 		{
 			temp->next = head;
 			tile->next = temp;
-			curent = head = temp;
+			current = head = temp;
 
 		}
 
 	}
-	bool search_by_value(T data) {
-		curent = head;
+	//==========================================
+	//-	добавление элемента по пор€дку (предполагаетс€, что элемент в динамической
+	//  структуре отсортированы, и необходимо, чтобы добавление нового элемента
+	//  не нарушило упор€доченности);
+	void add_after_sorting(T data) {
+
 		if (head == NULL)
 		{
-			return false;
+			return;
 		}
-		do
+		Node<T>* run = current;
+		if (current->value > data)
 		{
-			if (curent->value != data)
+			run = head;
+			if (data < head->value)
 			{
-				return true;
+				push_begin(data);
 			}
-			curent = curent->next;
-
-		} while (curent != head);
-
-		return false;
+		}
+		while (run->next != head)
+		{
+			if (data >= run->value && data <= run->next->value)
+			{
+				push_after(run, data);
+				return;
+			}
+			run = run->next;
+		}
+		Node<T>* temp = new Node<T>;
+		tile = temp;
+		temp->value = data;
+		run->next = temp;
+		temp->next = head;
+		
 	}
+	//==========================================
+	//-	удаление элемента с указанной информационной частью; 
 	bool delete_by_value(T data) {
 		Node<T>* temp = head;
 		Node<T>* previous = tile;
@@ -86,42 +113,40 @@ public:
 		} while (temp != head);
 		return false;
 	}
+	//==========================================
+	//-	поиск элемента;
+	bool search_by_value(T data) {
+		current = head;
+		if (head == NULL)
+		{
+			return false;
+		}
+		do
+		{
+			if (current->value != data)
+			{
+				return true;
+			}
+			current = current->next;
+
+		} while (current != head);
+
+		return false;
+	}
+	//==========================================
+	//-	удаление всех элементов;
 	void delete_all_node() {
 		tile->next = NULL;
 		while (head != NULL)
 		{
-			curent = head;
+			current = head;
 			head = head->next;
-			delete curent;
+			delete current;
 		}
-		tile = curent = NULL;
+		tile = current = NULL;
 	}
-	void list_out() {
-		curent = head;
-		do
-		{
-			cout << "[" << &curent->value << "], ";
-			curent = curent->next;
-
-		} while (curent != head);
-	}
-	void SplitList(Node<T> * run, Node<T> **front, Node<T> **back) {
-		Node<T> *prt1, *ptr2;
-		ptr2 = run;
-		prt1 = run->next;
-		while (prt1 != head)
-		{
-			prt1 = prt1->next;
-			if (prt1 != head)
-			{
-				ptr2 = ptr2->next;
-				prt1 = prt1->next;
-			}
-		}
-		*front = run;
-		*back = ptr2->next;
-		ptr2->next = NULL;
-	}
+	//==========================================
+	//-	сортировка элементов;
 	void MergenSort() {
 		tile->next = NULL;
 		if (head != tile) {
@@ -135,6 +160,7 @@ public:
 		}
 		tile->next = head;
 	}
+	private:
 	Node<T>* merge(Node<T>* temp1, Node<T>* temp2)
 	{
 		int i = 0;
@@ -208,22 +234,99 @@ public:
 
 		return merge((merge_sort(temp1)), (merge_sort(temp2)));
 	}
-
+	public:
+	//==========================================
+	//-	упор€дочение текущего элемента (предполагаетс€, что все остальные элементы упор€дочены);
+	void sort_current_value() {
+		T data = current->value;
+		Node<T> *temp = current;
+		if (temp == head)
+		{
+			head = head->next;
+			tile->next = head;
+			current = head;
+			delete temp;
+		}
+		else {
+			Node<T> *run = head;
+			while (run->next != temp)
+			{
+				run = run->next;
+			}
+			run->next = temp->next;
+			current = temp->next;
+			
+			delete temp;
+		}
+		add_after_sorting(data);
+	}
+	//==========================================
+	//-	перегруженный оператор !, определ€ющий существование элементов в структуре данных;
 	bool operator!() {
 		return(head != NULL);
 	}
-	/*void operator++ () {
-		if (curent != NULL) {
-			curent = curent->next;
+	//==========================================
+	//-	копирование структуры данных с помощью перегруженного оператора присваивани€;
+	List<T> operator= ( List<T>& Val) {
+
+		if (Val.head != NULL) {
+			Val.delete_all_node();
 		}
-	};*/
-	/*List<T>& operator= (List<T> &Temp) {
+		this->SetStart(true);
+		do
+		{
+			Val.push_back(current->value);
+			++(*this);
 
-		List<T>* temp = new List<T>;
-
+		} while (current != head);
 		
-			
 		return *this;
+	}
+	//==========================================
+	//-	получение ссылки на информационную часть текущего элемента (возвращает удачность операции);
+	bool curr_inf(T *& inf) { 
+		if (current != NULL)
+		{
+			inf = &current->value;
+			return false;
+		}
+		return true;
+	}
+	//==========================================
+	//-	получение копии информационной части текущего элемента (возвращает удачность операции); 
+	bool curr_inf(T & inf) { 
+		if (current != NULL) {
+			inf = current->value;
+			return false;
+		}
+		return true;
+	}
+	//==========================================
+	//-	перегруженный оператор ++ (префиксный) дл€ перехода к следующему элементу;
+	List& operator ++() {
+		if (current != NULL) {
+			current = current->next;
+		}
+		return *this;
+	};
+	//==========================================
+	//-	метод, перевод€щий указатель на текущий элемент в начало (конец, при необходимости) списка.
+	void SetStart(bool Head) {
+		current = Head ? head : tile;
+	}
+	//==========================================
+	/*T get_value() {
+		return curent->value;
 	}*/
+	void list_out() {
+		current = head;
+		do
+		{
+			cout << "[" << current->value << "], ";
+			current = current->next;
+
+		} while (current != head);
+	}
+	
 };
 
