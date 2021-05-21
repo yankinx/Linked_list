@@ -9,7 +9,7 @@ template <typename T> class List {
 		Node* next;
 	};
 
-	Node<T>* current, * head, *tile;
+	Node<T>* current, * head, *tail;
 	void push_after(Node<T> *target, T data) {
 		Node<T>* temp = new Node<T>;
 		temp->next = target->next;
@@ -18,7 +18,7 @@ template <typename T> class List {
 	}
 public:
 	List() {
-		head = current = tile =  NULL;
+		head = current = tail =  NULL;
 
 	};
 
@@ -29,35 +29,28 @@ public:
 	// -	добавление элемента после последнего
 	void push_back(T data) {
 			Node<T>* temp = new Node<T>;
+
 			temp->value = data;
-			temp->next = temp;
-		if (head == NULL)
-		{
-			head = current = tile = temp;
-		}
-		else {
-			tile->next = temp;
 			temp->next = head;
-			tile = temp;
-		}
+
+			if (head == NULL) {
+				current = tail = head = temp;
+			}
+			tail->next = temp;
+			tail = temp;
 	}
 	//==========================================
 	//	-	добавление элемента перед первым;  
 	void push_begin(T data) {
 		Node<T>* temp = new Node<T>;
 		temp->value = data;
-		if (head == NULL)
-		{
-			head = current = tile = temp;
-		}
-		else
-		{
-			temp->next = head;
-			tile->next = temp;
-			current = head = temp;
+		temp->next = head;
 
+		if (head == NULL) {
+			current = tail = temp;
 		}
-
+		tail->next = temp;
+		head = temp;
 	}
 	//==========================================
 	//-	добавление элемента по порядку (предполагается, что элемент в динамической
@@ -78,32 +71,49 @@ public:
 				push_begin(data);
 			}
 		}
-		while (run->next != head)
+		do
 		{
 			if (data >= run->value && data <= run->next->value)
 			{
 				push_after(run, data);
-				return;
+				break;
 			}
 			run = run->next;
-		}
-		Node<T>* temp = new Node<T>;
-		tile = temp;
-		temp->value = data;
-		run->next = temp;
-		temp->next = head;
-		
+
+		} while (run != tail );
+		push_after(run, data);
+		tail = tail->next;
 	}
 	//==========================================
 	//-	удаление элемента с указанной информационной частью; 
 	bool delete_by_value(T data) {
+		if (head == NULL)
+		{
+			return true;
+		}
 		Node<T>* temp = head;
-		Node<T>* previous = tile;
+		Node<T>* previous = tail;
+		
+		if (head->value == data)
+		{
+			if (head->next == head)
+			{
+				delete_all_node();
+				return true;
+			}
+			current == head ? current = current->next : 0;
+			head = head->next;
+			delete temp;
+			return true;
+		}
 		do
 		{
 			if (temp->value == data)
 			{
+
 				previous->next = temp->next;
+				current == temp ? current = current->next : 0;
+				tail == temp ? tail = previous : 0;
 				delete temp;
 				return true;
 			}
@@ -116,11 +126,11 @@ public:
 	//==========================================
 	//-	поиск элемента;
 	bool search_by_value(T data) {
-		current = head;
 		if (head == NULL)
 		{
 			return false;
 		}
+		current = head;
 		do
 		{
 			if (current->value != data)
@@ -136,29 +146,37 @@ public:
 	//==========================================
 	//-	удаление всех элементов;
 	void delete_all_node() {
-		tile->next = NULL;
+		if (head == NULL)
+		{
+			return;
+		}
+		tail->next = NULL;
 		while (head != NULL)
 		{
 			current = head;
 			head = head->next;
 			delete current;
 		}
-		tile = current = NULL;
+		tail = current = NULL;
 	}
 	//==========================================
 	//-	сортировка элементов;
-	void MergenSort() {
-		tile->next = NULL;
-		if (head != tile) {
+	void Merge_Sort() {
+		if (head == NULL)
+		{
+			return;
+		}
+		tail->next = NULL;
+		if (head != tail) {
 
 			head = merge_sort(head);
 		}
 		
-		while (tile->next != NULL)
+		while (tail->next != NULL)
 		{
-			tile = tile->next;
+			tail = tail->next;
 		}
-		tile->next = head;
+		tail->next = head;
 	}
 	private:
 	Node<T>* merge(Node<T>* temp1, Node<T>* temp2)
@@ -238,12 +256,12 @@ public:
 	//==========================================
 	//-	упорядочение текущего элемента (предполагается, что все остальные элементы упорядочены);
 	void sort_current_value() {
-		T data = current->value;
+		/*T data = current->value;
 		Node<T> *temp = current;
 		if (temp == head)
 		{
 			head = head->next;
-			tile->next = head;
+			tail->next = head;
 			current = head;
 			delete temp;
 		}
@@ -258,7 +276,57 @@ public:
 			
 			delete temp;
 		}
-		add_after_sorting(data);
+		add_after_sorting(data);*/
+
+		if (head == NULL)
+		{
+			return;
+		}
+		Node<T>* temp = current;
+		/*if (current == head)
+		{
+			if (head == head->next)
+			{
+				return;
+			}	
+			head = head->next;
+			tail->next = head;
+		}*/
+		Node<T>* run = current->next;
+		if (temp->value < run->value)
+		{
+			run = head;
+		}
+		Node<T>* left = head;
+		while (left->next != temp)
+		{
+			left = left->next;
+		}
+		if (current == head)
+		{
+			if (head == head->next)
+			{
+				return;
+			}
+			head = head->next;
+			tail->next = head;
+		}
+		left->next = temp->next;
+		do
+		{
+			if (temp->value >= run->value && temp->value <= run->next->value)
+			{
+				temp->next = run->next;
+				run->next = temp;
+				break;
+			}
+			run = run->next;
+
+		} while (run != tail);
+		tail->next = temp;
+		temp->next = head;
+		tail = temp;
+
 	}
 	//==========================================
 	//-	перегруженный оператор !, определяющий существование элементов в структуре данных;
@@ -267,9 +335,9 @@ public:
 	}
 	//==========================================
 	//-	копирование структуры данных с помощью перегруженного оператора присваивания;
-	List<T> operator= ( List<T>& Val) {
+	List<T> &operator= ( List<T>& Val) {
 
-		if (Val.head != NULL) {
+		/*if (Val.head != NULL) {
 			Val.delete_all_node();
 		}
 		this->SetStart(true);
@@ -280,6 +348,13 @@ public:
 
 		} while (current != head);
 		
+		return *this;*/
+
+		// Если я все верно понял 
+
+		head = Val.head;
+		current = Val.current ;
+		tail = Val.tail ;
 		return *this;
 	}
 	//==========================================
@@ -312,7 +387,7 @@ public:
 	//==========================================
 	//-	метод, переводящий указатель на текущий элемент в начало (конец, при необходимости) списка.
 	void SetStart(bool Head) {
-		current = Head ? head : tile;
+		current = Head ? head : tail;
 	}
 	//==========================================
 	/*T get_value() {
