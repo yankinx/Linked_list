@@ -27,7 +27,7 @@ public:
 	};
 
 	// -	добавление элемента после последнего
-	void push_back(T data) {
+	void push_back(T & data) {
 			Node<T>* temp = new Node<T>;
 
 			temp->value = data;
@@ -41,7 +41,7 @@ public:
 	}
 	//==========================================
 	//	-	добавление элемента перед первым;  
-	void push_begin(T data) {
+	void push_begin(T & data) {
 		Node<T>* temp = new Node<T>;
 		temp->value = data;
 		temp->next = head;
@@ -56,127 +56,121 @@ public:
 	//-	добавление элемента по порядку (предполагается, что элемент в динамической
 	//  структуре отсортированы, и необходимо, чтобы добавление нового элемента
 	//  не нарушило упорядоченности);
-	void add_after_sorting(T data) {
+	void add_after_sorting(T & data) {
 
-		if (head == NULL)
+		if (head != NULL)
 		{
-			return;
-		}
-		Node<T>* run = current;
-		if (current->value > data)
-		{
-			run = head;
-			if (data < head->value)
+			Node<T>* run = current;
+			if (current->value > data)
 			{
-				push_begin(data);
+				run = head;
+				if (data < head->value)
+				{
+					push_begin(data);
+					return;
+				}
 			}
-		}
-		do
-		{
-			if (data >= run->value && data <= run->next->value)
+			do
 			{
-				push_after(run, data);
-				break;
-			}
-			run = run->next;
+				if (data <= run->next->value)
+				{
+					push_after(run, data);
+					return;
+				}
+				run = run->next;
 
-		} while (run != tail );
-		push_after(run, data);
-		tail = tail->next;
+			} while (run != tail );
+			push_after(run, data);
+			tail = tail->next;
+		}
 	}
 	//==========================================
 	//-	удаление элемента с указанной информационной частью; 
-	bool delete_by_value(T data) {
-		if (head == NULL)
+	bool delete_by_value(T & data) {
+		if (head != NULL)
 		{
-			return true;
-		}
-		Node<T>* temp = head;
-		Node<T>* previous = tail;
-		
-		if (head->value == data)
-		{
-			if (head->next == head)
+			Node<T>* temp = head;
+			Node<T>* previous = tail;
+			do
 			{
-				delete_all_node();
-				return true;
-			}
-			current == head ? current = current->next : 0;
-			head = head->next;
-			delete temp;
-			return true;
+				if (temp->value == data)
+				{
+
+					if (head->value == data)
+					{
+						if (head->next == head)
+						{
+							delete_all_node();
+							return true;
+						}
+						head = head->next;
+					}
+
+					previous->next = temp->next;
+					current == temp ? current = current->next : 0;
+					tail == temp ? tail = previous : 0;
+					delete temp;
+					return true;
+				}
+				previous = temp;
+				temp = temp->next;
+
+			} while (temp != head);
 		}
-		do
-		{
-			if (temp->value == data)
-			{
-
-				previous->next = temp->next;
-				current == temp ? current = current->next : 0;
-				tail == temp ? tail = previous : 0;
-				delete temp;
-				return true;
-			}
-			previous = temp;
-			temp = temp->next;
-
-		} while (temp != head);
 		return false;
 	}
 	//==========================================
 	//-	поиск элемента;
-	bool search_by_value(T data) {
-		if (head == NULL)
+	bool search_by_value(T & data) {
+		if (head != NULL)
 		{
-			return false;
-		}
-		current = head;
-		do
-		{
-			if (current->value != data)
+			current = head;
+			do
 			{
-				return true;
-			}
-			current = current->next;
+				if (current->value != data)
+				{
+					return true;
+				}
+				current = current->next;
 
-		} while (current != head);
+			} while (current != head);
 
+		}
 		return false;
 	}
 	//==========================================
 	//-	удаление всех элементов;
 	void delete_all_node() {
-		if (head == NULL)
+		if (head != NULL)
 		{
-			return;
+			
+			tail->next = NULL;
+			while (head != NULL)
+			{
+				current = head;
+				head = head->next;
+				delete current;
+			}
+			tail = current = NULL;
 		}
-		tail->next = NULL;
-		while (head != NULL)
-		{
-			current = head;
-			head = head->next;
-			delete current;
-		}
-		tail = current = NULL;
 	}
 	//==========================================
 	//-	сортировка элементов;
 	void Merge_Sort() {
-		if (head == NULL)
+		if (head != NULL)
 		{
-			return;
-		}
-		tail->next = NULL;
-		if (head != tail) {
+			tail->next = NULL;
+			if (head != tail) {
 
-			head = merge_sort(head);
-		}
+				head = merge_sort(head);
+			}
 		
-		while (tail->next != NULL)
-		{
-			tail = tail->next;
+			while (tail->next != NULL)
+			{
+				tail = tail->next;
+			}
+			tail->next = head;
 		}
-		tail->next = head;
 	}
 	private:
 	Node<T>* merge(Node<T>* temp1, Node<T>* temp2)
@@ -256,77 +250,56 @@ public:
 	//==========================================
 	//-	упорядочение текущего элемента (предполагается, что все остальные элементы упорядочены);
 	void sort_current_value() {
-		/*T data = current->value;
-		Node<T> *temp = current;
-		if (temp == head)
+		
+		if (head != NULL)
 		{
-			head = head->next;
-			tail->next = head;
-			current = head;
-			delete temp;
-		}
-		else {
-			Node<T> *run = head;
-			while (run->next != temp)
+			Node<T>* prv = tail;
+			Node<T>* run = tail;
+
+			while (prv->next != current)
+			{
+				prv = prv->next;
+			}
+
+			prv->next = current->next;
+			current == head ? head = head->next : 0;
+			current == tail ? tail = prv : 0;
+			while (run->next->value < current->value && run->next != tail)
 			{
 				run = run->next;
 			}
-			run->next = temp->next;
-			current = temp->next;
-			
-			delete temp;
-		}
-		add_after_sorting(data);*/
-
-		if (head == NULL)
-		{
-			return;
-		}
-		Node<T>* temp = current;
-		/*if (current == head)
-		{
-			if (head == head->next)
+			if (run == tail)
 			{
-				return;
-			}	
-			head = head->next;
-			tail->next = head;
-		}*/
-		Node<T>* run = current->next;
-		if (temp->value < run->value)
-		{
-			run = head;
-		}
-		Node<T>* left = head;
-		while (left->next != temp)
-		{
-			left = left->next;
-		}
-		if (current == head)
-		{
-			if (head == head->next)
-			{
-				return;
+				current->next = head;
+				head = current;
+				tail->next = head;
 			}
-			head = head->next;
-			tail->next = head;
-		}
-		left->next = temp->next;
-		do
-		{
-			if (temp->value >= run->value && temp->value <= run->next->value)
+			else
 			{
-				temp->next = run->next;
-				run->next = temp;
-				break;
+				if (run->next == tail)
+				{
+					current->next = head;
+					tail->next = current;
+					tail = current;
+				}
+				else
+				{
+					if (current == run)
+					{
+						current->next = run->next;
+						tail->next = current;
+						run->next == head ? head = current : 0;
+					}
+					else
+					{
+						current->next = run->next;
+						run->next = current;
+
+					}
+
+				}
 			}
-			run = run->next;
-
-		} while (run != tail);
-		tail->next = temp;
-		temp->next = head;
-		tail = temp;
-
+		}
 	}
 	//==========================================
 	//-	перегруженный оператор !, определяющий существование элементов в структуре данных;
@@ -335,26 +308,50 @@ public:
 	}
 	//==========================================
 	//-	копирование структуры данных с помощью перегруженного оператора присваивания;
-	List<T> &operator= ( List<T>& Val) {
+	List<T> &operator= ( List<T>& B) {
 
-		/*if (Val.head != NULL) {
-			Val.delete_all_node();
-		}
-		this->SetStart(true);
-		do
+		if (this != &B && B.head != NULL )
 		{
-			Val.push_back(current->value);
-			++(*this);
+			Node<T>* acur = head, *bcur = B.head;
+			if (head != NULL)
+			{
+			tail->next = NULL;
+			}
+			B.tail->next = NULL;
 
-		} while (current != head);
-		
-		return *this;*/
+			while (acur != NULL && bcur != NULL)
+			{
+				acur->value = bcur->value;
+				acur = acur->next;
+				bcur = bcur->next;
+			}
+			if (acur == NULL)
+			{
+				while (bcur != NULL)
+				{
+					push_back(bcur->value);
+					bcur = bcur->next;
+				}
+			}
+			else
+			{
+				Node<T>* prv = head;
+				while (prv->next != acur)
+				{
+					prv = prv->next;
+				}
+				prv->next = head;
+				tail = prv;
+				while (acur != NULL)
+				{
+					prv = acur;
+					acur = acur->next;
+					delete prv;
+				}
+			}
 
-		// Если я все верно понял 
-
-		head = Val.head;
-		current = Val.current ;
-		tail = Val.tail ;
+		}
+		tail->next = head;
 		return *this;
 	}
 	//==========================================
@@ -394,14 +391,58 @@ public:
 		return curent->value;
 	}*/
 	void list_out() {
-		current = head;
+		if (head != NULL)
+		{
+			current = head;
+			do
+			{
+				cout << "[" << current->value << "], ";
+				current = current->next;
+
+			} while (current != head);
+		}
+	}
+	/*bool sort_current_value() {
+		if (head == NULL)
+		{
+			return;
+		}
+		Node<T>* temp = current;
+
+		Node<T>* run = current->next;
+		if (temp->value < run->value)
+		{
+			run = head;
+		}
+		Node<T>* left = head;
+		while (left->next != temp)
+		{
+			left = left->next;
+		}
+		if (current == head)
+		{
+			if (head == head->next)
+			{
+				return;
+			}
+			head = head->next;
+			tail->next = head;
+		}
+		left->next = temp->next;
 		do
 		{
-			cout << "[" << current->value << "], ";
-			current = current->next;
+			if (temp->value >= run->value && temp->value <= run->next->value)
+			{
+				temp->next = run->next;
+				run->next = temp;
+				break;
+			}
+			run = run->next;
 
-		} while (current != head);
-	}
-	
+		} while (run != tail);
+		tail->next = temp;
+		temp->next = head;
+		tail = temp;
+	}*/
 };
 
