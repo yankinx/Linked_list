@@ -27,7 +27,7 @@ public:
 	};
 
 	// -	добавление элемента после последнего
-	void push_back(T & data) {
+	void push_back(const T & data) {
 			Node<T>* temp = new Node<T>;
 
 			temp->value = data;
@@ -41,7 +41,7 @@ public:
 	}
 	//==========================================
 	//	-	добавление элемента перед первым;  
-	void push_begin(T & data) {
+	void push_begin(const T & data) {
 		Node<T>* temp = new Node<T>;
 		temp->value = data;
 		temp->next = head;
@@ -56,7 +56,7 @@ public:
 	//-	добавление элемента по порядку (предполагается, что элемент в динамической
 	//  структуре отсортированы, и необходимо, чтобы добавление нового элемента
 	//  не нарушило упорядоченности);
-	void add_after_sorting(T & data) {
+	void add_after_sorting(const T & data) {
 
 		if (head != NULL)
 		{
@@ -86,7 +86,7 @@ public:
 	}
 	//==========================================
 	//-	удаление элемента с указанной информационной частью; 
-	bool delete_by_value(T & data) {
+	bool delete_by_value(const T & data) {
 		if (head != NULL)
 		{
 			Node<T>* temp = head;
@@ -96,14 +96,23 @@ public:
 				if (temp->value == data)
 				{
 
-					if (head->value == data)
+					//if (head->value == data)
+					//{
+					//	if (head->next == head)
+					//	{
+					//		delete_all_node();
+					//		return true;
+					//	}
+					//	head = head->next;
+					//}
+					// было не верно написано! мы уже проверили что значение является искомым, но рассмотрено только условие что элемент 1, а если их несколько нужно будет только передвинуть голову вперед
+					if (head == temp)
 					{
-						if (head->next == head)
-						{
+						head = head->next;
+						if (head == temp) {
 							delete_all_node();
 							return true;
 						}
-						head = head->next;
 					}
 
 					previous->next = temp->next;
@@ -121,7 +130,7 @@ public:
 	}
 	//==========================================
 	//-	поиск элемента;
-	bool search_by_value(T & data) {
+	bool search_by_value(const T & data) {
 		if (head != NULL)
 		{
 			current = head;
@@ -310,9 +319,18 @@ public:
 	//-	копирование структуры данных с помощью перегруженного оператора присваивания;
 	List<T> &operator= ( List<T>& B) {
 
-		if (this != &B && B.head != NULL )
+		if (B.head == NULL)
 		{
-			Node<T>* acur = head, *bcur = B.head;
+			if (head != NULL)
+			{
+				delete_all_node();
+			}
+			return *this;
+		}
+
+		if (this != &B)
+		{
+			Node<T>* acur = head, *bcur = B.head, *prv = tail;
 			if (head != NULL)
 			{
 			tail->next = NULL;
@@ -322,6 +340,7 @@ public:
 			while (acur != NULL && bcur != NULL)
 			{
 				acur->value = bcur->value;
+				prv = acur;
 				acur = acur->next;
 				bcur = bcur->next;
 			}
@@ -335,11 +354,11 @@ public:
 			}
 			else
 			{
-				Node<T>* prv = head;
+				/*Node<T>* prv = head;
 				while (prv->next != acur)
 				{
 					prv = prv->next;
-				}
+				}*/
 				prv->next = head;
 				tail = prv;
 				while (acur != NULL)
@@ -350,8 +369,9 @@ public:
 				}
 			}
 
+			B.tail->next = B.head;
+			tail->next = head;	
 		}
-		tail->next = head;
 		return *this;
 	}
 	//==========================================
