@@ -26,21 +26,28 @@ int main()
     delete a;
 
 
-    /*List<int>* a = new List<int>();
-    a->push_back(1);
-    a->push_back(2);
-    a->push_back(3);
-    a->push_back(4);
-    a->push_back(5);
+    //=======================================================
 
-    List<int>* b = new List<int>();
-    b->push_back(6);
-    b->push_back(7);
-    b->push_back(8);
+   // List<int>* a = new List<int>();
+   // a->push_back(1);
+   ////a->push_back(5);
+   // a->push_back(3);
+   // a->push_back(4);
+   // a->push_back(2);
+   // a->push_back(6);
+   // a->push_back(7);
 
-    (*a) = (*b);
+   ///* List<int>* b = new List<int>();
+   // b->push_back(6);
+   // b->push_back(7);
+   // b->push_back(8);
 
-    a->list_out();*/
+   // (*a) = (*b);*/
+   // ++(*a);
+   // ++(*a);
+   // ++(*a);
+   // a->sort_current_value();
+   // a->list_out();
 
     //=======================================================
 

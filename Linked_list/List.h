@@ -265,7 +265,32 @@ public:
 			Node<T>* prv = tail;
 			Node<T>* run = tail;
 
-			while (prv->next != current)
+			while (run->next != current && run->next->value < current->value) {
+				run = run->next;
+			}
+			if (run->next != current)
+			{
+				prv == run;
+				while (prv->next != current)
+				{
+					prv = prv->next;
+				}
+			}
+			else
+			{
+				prv = run;
+			}
+			prv->next = current->next;
+			current == head ? head = head->next : 0;
+			current == tail ? tail = prv : 0;
+			if (run->next->value < current->value)
+			{
+				while (run->next->value < current->value && run->next != tail)
+				{
+					run = run->next;
+				}
+			}
+			/*while (prv->next != current)
 			{
 				prv = prv->next;
 			}
@@ -276,7 +301,7 @@ public:
 			while (run->next->value < current->value && run->next != tail)
 			{
 				run = run->next;
-			}
+			}*/
 			if (run == tail)
 			{
 				current->next = head;
@@ -319,24 +344,33 @@ public:
 	//-	копирование структуры данных с помощью перегруженного оператора присваивания;
 	List<T> &operator= ( List<T>& B) {
 
-		if (B.head == NULL)
+		/*if (B.head == NULL)
 		{
 			if (head != NULL)
 			{
 				delete_all_node();
 			}
 			return *this;
-		}
+		}*/
 
 		if (this != &B)
 		{
-			Node<T>* acur = head, *bcur = B.head, *prv = tail;
+			if (B.head == NULL)
+			{
+				if (head != NULL)
+				{
+					delete_all_node();
+				}
+				return *this;
+			}
+
 			if (head != NULL)
 			{
 			tail->next = NULL;
 			}
 			B.tail->next = NULL;
 
+			Node<T>* acur = head, *bcur = B.head, *prv = tail;
 			while (acur != NULL && bcur != NULL)
 			{
 				acur->value = bcur->value;
