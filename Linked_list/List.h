@@ -95,17 +95,6 @@ public:
 			{
 				if (temp->value == data)
 				{
-
-					//if (head->value == data)
-					//{
-					//	if (head->next == head)
-					//	{
-					//		delete_all_node();
-					//		return true;
-					//	}
-					//	head = head->next;
-					//}
-					// было не верно написано! мы уже проверили что значение является искомым, но рассмотрено только условие что элемент 1, а если их несколько нужно будет только передвинуть голову вперед
 					if (head == temp)
 					{
 						head = head->next;
@@ -262,78 +251,42 @@ public:
 		
 		if (head != NULL)
 		{
-			Node<T>* prv = tail;
-			Node<T>* run = tail;
-
-			while (run->next != current && run->next->value < current->value) {
+			Node<T>* prv = tail, * run = head, * ins_prv = NULL ;
+			
+			while(run != current && run->value < current->value){
+				prv = run; 
 				run = run->next;
 			}
-			if (run->next != current)
+
+			if (run != current)
 			{
-				prv == run;
-				while (prv->next != current)
+				ins_prv = prv;
+				while (run != current)
 				{
-					prv = prv->next;
-				}
-			}
-			else
-			{
-				prv = run;
-			}
-			prv->next = current->next;
-			current == head ? head = head->next : 0;
-			current == tail ? tail = prv : 0;
-			if (run->next->value < current->value)
-			{
-				while (run->next->value < current->value && run->next != tail)
-				{
+					prv = run;
 					run = run->next;
 				}
-			}
-			/*while (prv->next != current)
-			{
-				prv = prv->next;
-			}
-
-			prv->next = current->next;
-			current == head ? head = head->next : 0;
-			current == tail ? tail = prv : 0;
-			while (run->next->value < current->value && run->next != tail)
-			{
+				ins_prv == tail ? head = current : 0;
+				current == tail ? tail = prv : 0;
+			}else{
 				run = run->next;
-			}*/
-			if (run == tail)
-			{
-				current->next = head;
-				head = current;
-				tail->next = head;
-			}
-			else
-			{
-				if (run->next == tail)
+				while (run->value < current->value && run != head)
 				{
-					current->next = head;
-					tail->next = current;
-					tail = current;
+					ins_prv = run;
+					run = run->next;
 				}
-				else
-				{
-					if (current == run)
-					{
-						current->next = run->next;
-						tail->next = current;
-						run->next == head ? head = current : 0;
-					}
-					else
-					{
-						current->next = run->next;
-						run->next = current;
-
-					}
-
-				}
+				ins_prv == tail ? tail = current : 0;
+				current == head ? head = current->next : 0;
 			}
+			if (ins_prv != current)
+			{
+				prv->next = current->next;
+				current->next = ins_prv->next;
+				ins_prv->next = current;
+			}
+
 		}
+		
 	}
 	//==========================================
 	//-	перегруженный оператор !, определяющий существование элементов в структуре данных;
@@ -344,15 +297,7 @@ public:
 	//-	копирование структуры данных с помощью перегруженного оператора присваивания;
 	List<T> &operator= ( List<T>& B) {
 
-		/*if (B.head == NULL)
-		{
-			if (head != NULL)
-			{
-				delete_all_node();
-			}
-			return *this;
-		}*/
-
+	
 		if (this != &B)
 		{
 			if (B.head == NULL)
@@ -388,11 +333,6 @@ public:
 			}
 			else
 			{
-				/*Node<T>* prv = head;
-				while (prv->next != acur)
-				{
-					prv = prv->next;
-				}*/
 				prv->next = head;
 				tail = prv;
 				while (acur != NULL)
